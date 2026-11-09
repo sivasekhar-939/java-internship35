@@ -1,12 +1,12 @@
-# 🏢 Veda Technologies – Technology & Digital Services Management Platform
+# 💰 Daily Expense Tracker (Core Java)
 
 [![Java](https://img.shields.io/badge/Java-17%2B%20%2F%2021%20%2F%2023-orange.svg)](https://www.oracle.com/java/)
 [![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Architecture](https://img.shields.io/badge/Architecture-Modular%20OOP%20%26%20Collections-blueviolet.svg)]()
-[![Platform](https://img.shields.io/badge/Platform-Console%20%2F%20CLI-lightgrey.svg)]()
+[![Architecture](https://img.shields.io/badge/Architecture-OOP%20%26%20Serialization-blueviolet.svg)]()
+[![Persistence](https://img.shields.io/badge/Storage-Object%20Serialization%20(.dat)-success.svg)]()
 
-A modular, production-style organization management application written in **Core Java**. It simulates the comprehensive operations of **Veda Technologies**—orchestrating technology consulting services, technical curriculum offerings, customer sales inquiries, corporate training rosters, student internship pipelines, and client service ticketing.
+A robust, console-based personal finance management application developed in **Core Java**. It enables users to record daily expenditures, categorize transactions, set and monitor monthly budgets, detect overspending, and generate structured monthly financial reports with automated persistent disk storage.
 
 ---
 
@@ -14,311 +14,236 @@ A modular, production-style organization management application written in **Cor
 
 - [1. Project Overview](#1-project-overview)
 - [2. System Architecture](#2-system-architecture)
-- [3. Functional Modules & Requirements](#3-functional-modules--requirements)
-- [4. Project Structure](#4-project-structure)
-- [5. Synthetic Sample Dataset](#5-synthetic-sample-dataset)
-- [6. Core Java & OOP Concepts Implemented](#6-core-java--oop-concepts-implemented)
-- [7. How to Compile and Run](#7-how-to-compile-and-run)
-  - [Option A: Compiling with Sourcepath (Recommended)](#option-a-compiling-with-sourcepath-recommended)
-  - [Option B: Compiling All Source Files](#option-b-compiling-all-source-files)
-  - [Running in IDEs (VS Code / IntelliJ IDEA)](#running-in-ides-vs-code--intellij-idea)
-- [8. Interactive Console Walkthrough & Sample Output](#8-interactive-console-walkthrough--sample-output)
-- [9. Future Roadmap: MySQL & JDBC Upgrade](#9-future-roadmap-mysql--jdbc-upgrade)
+- [3. Application Features](#3-application-features)
+- [4. Technologies Used & Design Decisions](#4-technologies-used--design-decisions)
+- [5. How to Compile and Run](#5-how-to-compile-and-run)
+- [6. Menu Navigation & Operations](#6-menu-navigation--operations)
+- [7. Interactive Console Walkthrough](#7-interactive-console-walkthrough)
+- [8. Data Persistence Architecture](#8-data-persistence-architecture)
+- [9. Future Roadmap](#9-future-roadmap)
 - [10. License](#10-license)
 
 ---
 
 ## 1. Project Overview
 
-**Veda Technologies** operates across multiple digital domains: enterprise consulting, corporate training, academic internships, and ongoing client service delivery.
+Managing personal finances requires accurate monetary calculation, structured categorical breakdown, and disciplined budget monitoring.
 
-This application acts as an operational console that manages organizational entities in memory using the **Java Collections Framework** (`LinkedHashMap`, `ArrayList`) and strictly follows **Object-Oriented Design Principles**.
-
-### Key Highlights:
-- **Zero External Dependencies**: Runs out of the box with pure Java standard libraries (JDK 17+).
-- **Preloaded Synthetic Data**: Ready for immediate demonstration without requiring manual data entry on startup.
-- **Defensive Console Architecture**: Sanitized user input preventing scanner newline bugs and numerical parsing errors.
-- **Executive Dashboard**: Real-time statistical aggregation of pipeline valuation, active client requests, and trainee enrollment revenues.
+The **Daily Expense Tracker** provides a full suite of personal accounting tools:
+- **Zero Framework Footprint**: Built purely with Core Java without requiring third-party libraries, databases, or web servers.
+- **Permanent Data Persistence**: Uses native Java Object Serialization to store all transactions and budgets in a binary file (`expense_tracker.dat`) between executions.
+- **Accurate Currency Handling**: Employs `BigDecimal` with strict `HALF_UP` rounding to prevent floating-point calculation inaccuracies common with `float` or `double`.
+- **Preloaded Seed Data**: Out-of-the-box demo records allow immediate exploration of budget health, summaries, and category charts.
 
 ---
 
 ## 2. System Architecture
 
-The application adopts a clean, decoupled **Model-Service-Controller** design:
-
 ```
-                                ┌──────────────────────────────────────────┐
-                                │        VedaTechnologiesApp.java          │
-                                │   (Console Controller & Menu Dispatcher) │
-                                └────────────────────┬─────────────────────┘
-                                                     │ delegates
-                                                     ▼
-                                ┌──────────────────────────────────────────┐
-                                │         OrganizationService.java         │
-                                │   (Business Logic, CRUD & Aggregations)  │
-                                └────────────────────┬─────────────────────┘
-                                                     │ manages in-memory
-          ┌─────────────────┬────────────────────────┼─────────────────┬─────────────────┐
-          ▼                 ▼                        ▼                 ▼                 ▼
- ┌─────────────────┐┌─────────────────┐    ┌──────────────────┐┌────────────────┐┌────────────────┐
- │ ServiceCategory ││TechnologyProgram│    │ CustomerInquiry  ││TrainingProgram ││ ServiceRequest │
- │     (Model)     ││     (Model)     │    │     (Model)      ││    (Model)     ││    (Model)     │
- └─────────────────┘└─────────────────┘    └──────────────────┘└────────────────┘└────────────────┘
-                                                     ▲
-                                                     │
-                                           ┌──────────────────┐
-                                           │InternshipApplicat│
-                                           │     (Model)      │
-                                           └──────────────────┘
-```
-
----
-
-## 3. Functional Modules & Requirements
-
-| Module | Operational Capabilities | Business Purpose |
-| :--- | :--- | :--- |
-| **1. Executive Dashboard** | Aggregations, metrics, revenue calculations | Overview of operational throughput, active tickets, and revenue realization. |
-| **2. Service Categories** | Add, View All, Update, Delete | Manage organizational service offerings, base pricing, and active status. |
-| **3. Technology Programs** | Add, View All, Update, Delete | Track technical curriculum tracks, duration in months, and availability. |
-| **4. Customer Inquiries** | Register, View All, Update Status | Track inbound business leads through lifecycle stages (`New` $\to$ `In Review` $\to$ `Contacted` $\to$ `Converted` $\to$ `Closed`). |
-| **5. Corporate Training** | Add Course, View, Enroll Trainees | Manage technical workshops, seat capacity limits, fees, and trainee rosters. |
-| **6. Internship Programs** | Register Applicant, View, Update Status | Pipeline tracking for student candidates (`Applied` $\to$ `Under Review` $\to$ `Interviewed` $\to$ `Accepted` $\to$ `Rejected`). |
-| **7. Service Requests** | Create Ticket, View, Assign, Resolve | Enterprise client service deliverables, priority management (`High`, `Medium`, `Low`), and engineer assignment. |
-
----
-
-## 4. Project Structure
-
-```
-src/main/java/com/veda/
-│
-├── ServiceCategory.java        # Domain Model: Consultative service definition & base fee
-├── TechnologyProgram.java      # Domain Model: Technology offerings, domain, & duration
-├── CustomerInquiry.java        # Domain Model: Client leads, service interest, & contact info
-├── TrainingProgram.java        # Domain Model: Corporate training capacities, fees, & enrollments
-├── InternshipApplication.java  # Domain Model: Student candidate applications & review stage
-├── ServiceRequest.java         # Domain Model: Client delivery tickets, priority, & engineer assign
-│
-├── OrganizationService.java    # Service Layer: Collections repository, synthetic seed, & CRUD
-└── VedaTechnologiesApp.java    # Application Entry: Menu loop, input validation, & display
+                       ┌──────────────────────────────────────────┐
+                       │           ExpenseTracker.java            │
+                       │   (Console Controller & Menu Dispatcher) │
+                       └────────────────────┬─────────────────────┘
+                                            │ coordinates
+                                            ▼
+                       ┌──────────────────────────────────────────┐
+                       │               TrackerData                │
+                       │  (In-Memory State & Budget Repository)   │
+                       └─────────────┬────────────────────────────┘
+                                     │ contains
+                 ┌───────────────────┴───────────────────┐
+                 ▼                                       ▼
+    ┌─────────────────────────┐             ┌─────────────────────────┐
+    │    List<Transaction>    │             │   Monthly & Category    │
+    │  (Id, Date, Amount,     │             │      Budget Maps        │
+    │   Category, Desc)       │             │   (HashMap<String, B>)  │
+    └────────────┬────────────┘             └────────────┬────────────┘
+                 │                                       │
+                 └───────────────────┬───────────────────┘
+                                     │ serialized via
+                                     ▼
+                       ┌──────────────────────────┐
+                       │   expense_tracker.dat    │
+                       │   (Binary Serialization) │
+                       └──────────────────────────┘
 ```
 
 ---
 
-## 5. Synthetic Sample Dataset
+## 3. Application Features
 
-The system initializes with realistic enterprise sample records:
-
-### Service Categories
-| ID | Service Name | Base Price | Status | Description |
-| :---: | :--- | :---: | :---: | :--- |
-| **101** | Cloud & DevOps Architecture | \$4,500.00 | Active | End-to-end cloud migrations, Kubernetes orchestration, and CI/CD. |
-| **102** | Enterprise Full-Stack Development | \$6,000.00 | Active | Distributed microservices and modern responsive web systems. |
-| **103** | Applied AI & Data Engineering | \$7,500.00 | Active | ML model deployment, lakehouse pipelines, and LLM integrations. |
-| **104** | Cybersecurity & SOC Advisory | \$5,000.00 | Active | Vulnerability assessments, penetration testing, and ISO 27001. |
-
-### Technology Curriculums
-| ID | Program Name | Domain | Duration | Status |
-| :---: | :--- | :--- | :---: | :---: |
-| **201** | Java Enterprise & Spring Microservices | Backend Systems | 6 Months | Active |
-| **202** | Cloud Platform Engineering (AWS/GCP) | DevOps & Cloud | 5 Months | Active |
-| **203** | Generative AI & LLM Systems | Artificial Intelligence | 4 Months | Active |
-| **204** | Cyber Threat Intelligence & SOC | Information Security | 6 Months | Upcoming |
-
-### Pre-Enrolled Corporate Training
-* **Production Java 21 & Concurrency** (Instructor: Dr. S. K. Sharma | Fee: \$450.00 | Enrolled: 3/25)
-* **Kubernetes & Terraform Masterclass** (Instructor: Priya Nair | Fee: \$550.00 | Enrolled: 2/20)
-
-### Client Service Deliverables
-* **OAuth2.0 / OpenID Integration** (Client: FinFlow Payment Gateway | Priority: High | Assigned: Aditya Sen | Status: In Progress)
-* **Kubernetes Multi-AZ Deployment** (Client: Apollo Health Systems | Priority: High | Assigned: Neha Patil | Status: Open)
-* **Pipeline Latency Profiling** (Client: GreenMatrix Agrotech | Priority: Medium | Assigned: Siddharth Rao | Status: Resolved)
-
----
-
-## 6. Core Java & OOP Concepts Implemented
-
-| Concept | Implementation Details |
+| Feature | Description |
 | :--- | :--- |
-| **Encapsulation** | All domain entities declare private attributes with public accessors, mutators, and formatted `toString()` representations. |
-| **High Cohesion & Separation of Concerns** | UI presentation (`VedaTechnologiesApp`) is strictly isolated from data storage and business rules (`OrganizationService`). |
-| **Java Collections Framework** | `LinkedHashMap<Integer, T>` provides $O(1)$ key-based access while maintaining deterministic insertion order for tabular console display. |
-| **Java 17+ Switch Expressions** | Modern arrow syntax (`case 1 -> ...`) for clean, fall-through-safe menu branch dispatching. |
-| **Java Streams API** | Real-time numerical reductions (`sum()`, `filter()`, `count()`, `mapToDouble()`) inside `displayDashboard()`. |
-| **Defensive I/O Programming** | Custom input helpers `readIntChoice()` and `readDoubleChoice()` with try-catch blocks prevent `InputMismatchException` and `Scanner.nextInt()` newline skipping bugs. |
+| **Transaction CRUD** | Add, view, edit, and delete expense entries with automatic ID generation. |
+| **Multi-Criteria Search** | Filter transactions by keyword in description, category, specific date, or amount range ($Min - Max$). |
+| **Categorization** | Tag expenses under Food & Dining, Transportation, Utilities, Shopping, Healthcare, Education, Entertainment, or custom categories. |
+| **Dual Budget Control** | Set an **Overall Monthly Budget** and granular **Category-Specific Budgets** for any target month (`YYYY-MM`). |
+| **Financial Summaries** | Monthly totals, daily averages, active expenditure days, and highest/lowest transactions. |
+| **Visual Category Breakdown** | Percentage share of each category accompanied by ASCII graphical visualization bars (`#`). |
+| **Budget Deficit & Overspending Alert** | Real-time budget health check warning when expenses exceed allocated limits. |
+| **Automated Data Persistence** | Auto-loads from disk on startup and serializes changes upon selecting `0. Save and exit`. |
 
 ---
 
-## 7. How to Compile and Run
+## 4. Technologies Used & Design Decisions
+
+| Technology | Purpose & Architectural Decision |
+| :--- | :--- |
+| **Java 17+** | Leverages modern switch expressions, enhanced streams, and records-ready architecture. |
+| **`BigDecimal`** | Financial industry standard for currency handling. Avoids IEEE 754 floating-point precision loss. |
+| **`LocalDate` & `YearMonth`** | Immutable, thread-safe date manipulation (ISO-8601 standard: `yyyy-MM-dd` and `yyyy-MM`). |
+| **Java Serialization (`Serializable`)** | Enables fast, lightweight binary state persistence without setting up SQL servers. |
+| **Java Collections (`ArrayList`, `HashMap`)** | Dynamic list storage for transactions and constant-time $O(1)$ lookups for budget thresholds. |
+| **Streams API** | Functional reductions (`filter`, `reduce`, `groupingBy`, `summing`) for real-time reporting. |
+
+---
+
+## 5. How to Compile and Run
 
 ### Prerequisites
-* **Java Development Kit (JDK) 17, 21, or 23** installed.
-* Verify your Java version:
+* Java JDK 17 or higher installed.
+* Verify your installation:
   ```powershell
   javac -version
   java -version
   ```
 
----
-
-### Option A: Compiling with Sourcepath (Recommended)
-
-From the project root directory (`c:\Users\sivas\OneDrive\Desktop\java intership`):
-
+### Step 1: Compile the application
+From the workspace root directory (`c:\Users\sivas\OneDrive\Desktop\java intership`):
 ```powershell
-# Compile the main application with its source tree
-javac -d out -sourcepath src/main/java src/main/java/com/veda/VedaTechnologiesApp.java
-
-# Run the compiled application
-java -cp out com.veda.VedaTechnologiesApp
+javac ExpenseTracker.java
 ```
 
----
-
-### Option B: Compiling All Source Files
-
-#### On Windows (PowerShell):
+### Step 2: Execute the application
 ```powershell
-# Create out directory if not present
-if (!(Test-Path out)) { New-Item -ItemType Directory -Name out }
-
-# Compile all source files
-javac -d out (Get-ChildItem -Path src/main/java/com/veda/*.java).FullName
-
-# Execute
-java -cp out com.veda.VedaTechnologiesApp
-```
-
-#### On Linux / macOS (Bash):
-```bash
-javac -d out src/main/java/com/veda/*.java
-java -cp out com.veda.VedaTechnologiesApp
+java ExpenseTracker
 ```
 
 ---
 
-### Running in IDEs (VS Code / IntelliJ IDEA)
+## 6. Menu Navigation & Operations
 
-1. **IntelliJ IDEA**:
-   * Open the project root folder.
-   * Right-click on `src/main/java` $\to$ **Mark Directory as** $\to$ **Sources Root**.
-   * Open `src/main/java/com/veda/VedaTechnologiesApp.java` and click **Run**.
-2. **VS Code**:
-   * Open the workspace folder.
-   * Install the **Extension Pack for Java**.
-   * Navigate to `VedaTechnologiesApp.java` and click the **Run** button above `main()`.
+Upon launching, the interactive menu displays:
 
----
-
-## 8. Interactive Console Walkthrough & Sample Output
-
-### 1. Main Menu Screen
 ```text
 ==========================================
-   VEDA TECHNOLOGIES
-   MANAGEMENT SYSTEM
+       DAILY EXPENSE TRACKER
 ==========================================
-
-MAIN MENU
-
-1. Dashboard
-2. Service Categories
-3. Technology Programs
-4. Customer Inquiries
-5. Training Programs
-6. Internship Programs
-7. Service Requests
-0. Exit
-
-Enter your choice: 1
-```
-
-### 2. Executive Dashboard Output
-```text
-=======================================================
-       VEDA TECHNOLOGIES - EXECUTIVE DASHBOARD         
-=======================================================
-  Service Categories               : 4 (4 Active)
-  Technology Offerings             : 4 (3 Active)
-  Customer Inquiries               : 3 (3 Pending Action)
-  Corporate Training               : 2 Programs (5 Trainees Enrolled)
-  Internship Candidates            : 3 Applicants (1 Accepted)
-  Client Service Requests          : 3 Total (2 Active/In-Progress)
--------------------------------------------------------
-  Active Services Pipeline Value   : $23,000.00
-  Total Training Revenue Realized  : $2,450.00
-=======================================================
-```
-
-### 3. Customer Inquiry Submenu & Listing
-```text
---- [Customer Inquiries Management] ---
-1. View All Inquiries
-2. Register New Inquiry
-3. Update Inquiry Status
-0. Back to Main Menu
-Choice: 1
-
---- Customer Inquiries (3) ---
-[301] Apollo Health Systems | Service: Cloud & DevOps Architecture | Status: In Review   
-    Contact: tech@apollohealth.org | +91-9845012345
-[302] FinFlow Payment Gateway | Service: Enterprise Full-Stack Development | Status: Converted   
-    Contact: contact@finflow.io | +91-9876543210
-[303] GreenMatrix Agrotech | Service: Applied AI & Data Engineering | Status: New         
-    Contact: founders@greenmatrix.ai | +91-9123456789
-```
-
-### 4. Client Service Requests Overview
-```text
---- [Service Requests Management] ---
-1. View All Service Requests
-2. Create New Service Request
-3. Assign Lead Engineer
-4. Update Request Status
-0. Back to Main Menu
-Choice: 1
-
---- Client Service Requests (3) ---
-[601] OAuth2.0 / OpenID Integration | Priority: High   | Status: In Progress 
-    Client: FinFlow Payment Gateway | Category: Enterprise Full-Stack Development | Assigned: Aditya Sen
-[602] Kubernetes Multi-AZ Deployment | Priority: High   | Status: Open        
-    Client: Apollo Health Systems | Category: Cloud & DevOps Architecture | Assigned: Neha Patil
-[603] Pipeline Latency Profiling   | Priority: Medium | Status: Resolved    
-    Client: GreenMatrix Agrotech | Category: Applied AI & Data Engineering | Assigned: Siddharth Rao
+1. Add expense
+2. View all expenses
+3. Edit expense
+4. Delete expense
+5. Search expenses
+6. Set / update monthly budget
+7. Monthly financial summary
+8. Category-wise summary
+9. View current-month budget status
+0. Save and exit
+==========================================
+Enter your choice:
 ```
 
 ---
 
-## 9. Future Roadmap: MySQL & JDBC Upgrade
+## 7. Interactive Console Walkthrough
 
-The current version maintains data in-memory for zero-friction setup. The planned architectural evolution includes:
-
+### 1. View All Recorded Expenses (`Option 2`)
+```text
+--- [All Recorded Expenses (6)] ---
++------+--------------+------------------+--------------------------------+-------------+
+| ID   | Date         | Category         | Description                    | Amount      |
++------+--------------+------------------+--------------------------------+-------------+
+| 1    | 2026-11-04   | Food & Dining    | Supermarket Groceries          | $86.50      |
+| 2    | 2026-11-05   | Transportation   | Monthly Train Metro Pass       | $75.00      |
+| 3    | 2026-11-06   | Utilities        | High-Speed Fiber Internet      | $65.00      |
+| 4    | 2026-11-07   | Food & Dining    | Team Dinner & Beverages        | $124.00     |
+| 5    | 2026-11-08   | Education        | Software Engineering Book      | $49.99      |
+| 6    | 2026-11-09   | Healthcare       | Pharmacy Medicine Refill       | $32.40      |
++------+--------------+------------------+--------------------------------+-------------+
+Total Cumulative Expenses: $432.89 across 6 transactions.
 ```
-┌─────────────────────────┐       ┌─────────────────────────┐       ┌─────────────────────────┐
-│     Console / Web UI    │ ───▶  │      Service Layer      │ ───▶  │        DAO Layer        │
-│  (VedaTechnologiesApp)  │       │  (Business Validation)  │       │   (JDBC PreparedStmts)  │
-└─────────────────────────┘       └─────────────────────────┘       └────────────┬────────────┘
-                                                                                 │
-                                                                                 ▼
-                                                                    ┌─────────────────────────┐
-                                                                    │      MySQL Database     │
-                                                                    │  (Persistent Relational)│
-                                                                    └─────────────────────────┘
+
+### 2. Monthly Financial Summary (`Option 7`)
+```text
+=======================================================
+     MONTHLY FINANCIAL SUMMARY: November 2026
+=======================================================
+  Total Spent          : $432.89
+  Total Transactions   : 6
+  Active Days Count    : 6
+  Average Daily Spend  : $72.15
+  Highest Expense      : $124.00 (Food & Dining - Team Dinner & Beverages)
+  Lowest Expense       : $32.40 (Healthcare - Pharmacy Medicine Refill)
+=======================================================
 ```
 
-* [ ] **Phase 2 (MySQL + JDBC Persistence):**
-  * Create normalized relational tables: `service_categories`, `technology_programs`, `customer_inquiries`, `training_programs`, `internship_applications`, and `service_requests`.
-  * Implement connection pooling via `HikariCP` and `DBConnection.java`.
-  * Replace collection mutations with transactional SQL queries (`PreparedStatement`).
-* [ ] **Phase 3 (Enterprise Spring Boot REST API):**
-  * Expose REST endpoints (`/api/v1/services`, `/api/v1/inquiries`, `/api/v1/trainings`).
-  * Implement Spring Security with JWT authentication for Administrator and Engineer roles.
-* [ ] **Phase 4 (Web Dashboard & Analytics):**
-  * Modern React.js frontend with live Chart.js metrics and automated PDF invoice/mark sheet exports.
+### 3. Category-wise Spending Breakdown with Visual Bar (`Option 8`)
+```text
+=================================================================
+      CATEGORY-WISE SPENDING: November 2026
+=================================================================
+| Category         | Amount Spent | Share (%) | Visual Share       |
+|------------------|--------------|-----------|--------------------|
+| Food & Dining    | $210.50      | 48.6    % | #########          |
+| Transportation   | $75.00       | 17.3    % | ###                |
+| Utilities        | $65.00       | 15.0    % | ###                |
+| Education        | $49.99       | 11.5    % | ##                 |
+| Healthcare       | $32.40       | 7.5     % | #                  |
+=================================================================
+Total Monthly Expenditure: $432.89
+```
+
+### 4. Current-Month Budget Health & Overspending Warning (`Option 9`)
+```text
+=======================================================
+    BUDGET HEALTH & OVERSPENDING REPORT (November 2026)
+=======================================================
+  Monthly Budget Limit : $2,500.00
+  Total Spent To-Date  : $432.89 ( 17.3% utilized)
+  Remaining Budget     : $2,067.11  [HEALTHY - Within Budget]
+
+--- Category-Specific Budget Health ---
+| Category         | Budget     | Spent      | Remaining  | Status     |
+|------------------|------------|------------|------------|------------|
+| Utilities        | $400.00    | $65.00     | $335.00    | OK         |
+| Transportation   | $300.00    | $75.00     | $225.00    | OK         |
+| Shopping         | $350.00    | $0.00      | $350.00    | OK         |
+| Food & Dining    | $600.00    | $210.50    | $389.50    | OK         |
+=======================================================
+```
+
+---
+
+## 8. Data Persistence Architecture
+
+The application handles storage through Java Object Serialization:
+
+```java
+// Saving data permanently to disk
+try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("expense_tracker.dat"))) {
+    oos.writeObject(data);
+}
+
+// Restoring state upon startup
+try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("expense_tracker.dat"))) {
+    data = (TrackerData) ois.readObject();
+}
+```
+
+* When the application runs for the first time without an existing `expense_tracker.dat` file, it seeds realistic sample data for demonstration.
+* Subsequent modifications (adds, edits, deletes, budgets) are saved when you exit via option `0`.
+
+---
+
+## 9. Future Roadmap
+
+- [ ] **GUI Front-End**: Develop a desktop graphical interface using **Java Swing** or **JavaFX**.
+- [ ] **Database Persistence**: Replace file serialization with **MySQL + JDBC** relational schemas.
+- [ ] **Export Engine**: Export monthly expense sheets and audit logs to formatted **CSV** and **PDF**.
+- [ ] **Recurring Transactions**: Support automated recurring payments (rent, subscriptions, utilities).
 
 ---
 
 ## 10. License
 
-This project is licensed under the **MIT License** — feel free to use, modify, and distribute it for academic coursework, technical interview portfolios, and enterprise training simulations.
+This project is licensed under the **MIT License** — feel free to use it for personal budgeting, academic projects, and portfolio presentations.

@@ -1,3 +1,5 @@
 *.class
 out/
 .DS_Store
+*.dat
+*.ser
