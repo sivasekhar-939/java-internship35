@@ -247,3 +247,4 @@ try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("expense_
 ## 10. License
 
 This project is licensed under the **MIT License** — feel free to use it for personal budgeting, academic projects, and portfolio presentations.
+
